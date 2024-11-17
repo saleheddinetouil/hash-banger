@@ -1,28 +1,38 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Release Build
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*' # Trigger on tag pushes that start with 'v' (e.g., v1.0.0)
 
 jobs:
-
-  build:
+  build-release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19' # Or your desired Go version
 
-    - name: Build
-      run: go build -v .
+      - name: Build for Linux
+        run: go build -o hash-banger-linux
 
-    - name: Test
-      run: go test -v .
+      - name: Build for Windows
+        run: GOOS=windows GOARCH=amd64 go build -o hash-banger-windows.exe
+
+      - name: Build for macOS
+        run: GOOS=darwin GOARCH=amd64 go build -o hash-banger-macos
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            hash-banger-linux
+            hash-banger-windows.exe
+            hash-banger-macos
+          tag_name: ${{ github.ref }} # Use the tag that triggered the workflow
+          name: Release ${{ github.ref }} # Release title
+          body:  "Release ${{ github.ref }} of hash-banger." # Release description (customize as needed)
