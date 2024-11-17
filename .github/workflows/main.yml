@@ -17,10 +17,6 @@ jobs:
         with:
           go-version: '1.19'
 
-      - name: INIT
-        run: go mod init
-
-
       - name: Get dependencies
         run: go mod download
 
