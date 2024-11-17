@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*' # Trigger also on tags starting with 'v' for releases
+
+permissions:
+  releases: write  # Grant permission to create releases
 
 jobs:
   build-release:
@@ -15,7 +20,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.23.1'
+          go-version: '1.19'
 
       - name: Get dependencies
         run: go mod download
@@ -29,22 +34,19 @@ jobs:
       - name: Build for macOS
         run: GOOS=darwin GOARCH=amd64 go build -o hash-banger-macos
 
-      - name: Create Release (Draft)
-        uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main' # Only create a draft release on pushes to main
+      - name: Upload artifacts (main branch)
+        uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/main'
         with:
-          files: |
+          name: hash-banger-latest
+          path: |
             hash-banger-linux
             hash-banger-windows.exe
             hash-banger-macos
-          name: Latest Build (Draft)
-          draft: true
-          prerelease: true  # Mark as a pre-release
 
-
-      - name: Create Release (Tagged)
+      - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/v') # Only create a full release on tags starting with 'v'
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           files: |
             hash-banger-linux
@@ -52,13 +54,4 @@ jobs:
             hash-banger-macos
           tag_name: ${{ github.ref }}
           name: Release ${{ github.ref }}
-
-      - name: Upload artifacts (main branch)
-        uses: actions/upload-artifact@v3
-        if: github.ref == 'refs/heads/main' # Only upload artifacts on pushes to main
-        with:
-          name: hash-banger-latest
-          path: |
-            hash-banger-linux
-            hash-banger-windows.exe
-            hash-banger-macos
+          body: "Release ${{ github.ref }} of hash-banger.  Includes binaries for Linux, macOS, and Windows." #  Add release notes or other information here.
