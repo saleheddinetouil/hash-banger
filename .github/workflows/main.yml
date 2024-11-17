@@ -1,8 +1,9 @@
 name: Release Build
 
 on:
-  push
-    
+  push:
+    branches:
+      - main
 
 jobs:
   build-release:
@@ -14,10 +15,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.19' # Or your desired Go version
+          go-version: '1.19'
+
+      - name: Get dependencies
+        run: go mod download
 
       - name: Build for Linux
-        run: go build -o hash-banger-linux
+        run: GOOS=linux GOARCH=amd64 go build -o hash-banger-linux
 
       - name: Build for Windows
         run: GOOS=windows GOARCH=amd64 go build -o hash-banger-windows.exe
@@ -25,13 +29,36 @@ jobs:
       - name: Build for macOS
         run: GOOS=darwin GOARCH=amd64 go build -o hash-banger-macos
 
-      - name: Create Release
+      - name: Create Release (Draft)
         uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/main' # Only create a draft release on pushes to main
         with:
           files: |
             hash-banger-linux
             hash-banger-windows.exe
             hash-banger-macos
-          tag_name: ${{ github.ref }} # Use the tag that triggered the workflow
-          name: Release ${{ github.ref }} # Release title
-          body:  "Release ${{ github.ref }} of hash-banger." # Release description (customize as needed)
+          name: Latest Build (Draft)
+          draft: true
+          prerelease: true  # Mark as a pre-release
+
+
+      - name: Create Release (Tagged)
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v') # Only create a full release on tags starting with 'v'
+        with:
+          files: |
+            hash-banger-linux
+            hash-banger-windows.exe
+            hash-banger-macos
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+
+      - name: Upload artifacts (main branch)
+        uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/main' # Only upload artifacts on pushes to main
+        with:
+          name: hash-banger-latest
+          path: |
+            hash-banger-linux
+            hash-banger-windows.exe
+            hash-banger-macos
