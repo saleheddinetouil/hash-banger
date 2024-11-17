@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 )
-
 func main() {
 	hashType := flag.String("type", "md5", "Hash type (md5, sha1, sha256, bcrypt)")
 	hashValue := flag.String("hash", "", "Hash to crack")
