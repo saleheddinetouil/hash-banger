@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-  permissions:  
-    releases: write
+
 jobs:
   build-release:
     runs-on: ubuntu-latest
@@ -63,3 +62,8 @@ jobs:
             hash-banger-linux
             hash-banger-windows.exe
             hash-banger-macos
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  releases: write
