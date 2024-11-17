@@ -30,7 +30,7 @@ jobs:
         run: GOOS=darwin GOARCH=amd64 go build -o hash-banger-macos
 
       - name: Upload artifacts (main branch)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:
           name: hash-banger-latest
