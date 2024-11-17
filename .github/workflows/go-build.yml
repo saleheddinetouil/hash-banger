@@ -1,0 +1,38 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tag pushes that start with 'v' (e.g., v1.0.0)
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19' # Or your desired Go version
+
+      - name: Build for Linux
+        run: go build -o hash-banger-linux
+
+      - name: Build for Windows
+        run: GOOS=windows GOARCH=amd64 go build -o hash-banger-windows.exe
+
+      - name: Build for macOS
+        run: GOOS=darwin GOARCH=amd64 go build -o hash-banger-macos
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            hash-banger-linux
+            hash-banger-windows.exe
+            hash-banger-macos
+          tag_name: ${{ github.ref }} # Use the tag that triggered the workflow
+          name: Release ${{ github.ref }} # Release title
+          body:  "Release ${{ github.ref }} of hash-banger." # Release description (customize as needed)
