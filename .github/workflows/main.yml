@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*' # Trigger also on tags starting with 'v' for releases
-
-permissions:
-  releases: write  # Grant permission to create releases
 
 jobs:
   build-release:
