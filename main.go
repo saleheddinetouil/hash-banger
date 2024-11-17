@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 )
+
 func main() {
 	hashType := flag.String("type", "md5", "Hash type (md5, sha1, sha256, bcrypt)")
 	hashValue := flag.String("hash", "", "Hash to crack")
@@ -16,13 +16,11 @@ func main() {
 	maxLength := flag.Int("max", 8, "Maximum password length for brute-force")
 	dictionaryFile := flag.String("dict", "dictionary.txt", "Dictionary file for dictionary attack")
 
-
 	flag.Parse()
 
 	if *hashValue == "" {
 		log.Fatal("Hash value is required. Use -hash <hash>")
 	}
-
 
 	if *bruteForce {
 		crackBruteForce(*hashValue, *charSet, *minLength, *maxLength, *hashType)
