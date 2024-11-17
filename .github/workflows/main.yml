@@ -41,7 +41,6 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main'
         with:
           files: |
             hash-banger-linux
